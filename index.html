@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>¿Quieres ser mi San Valentín?</title>
+  <style>
+    /* ==========================
+       Estilos para la Ventana de Bienvenida
+       ========================== */
+    #welcomeScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #ff99cc, #ffccff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    #welcomeScreen .welcomeContent {
+      text-align: center;
+      font-family: 'Courier New', Courier, monospace;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      border: 2px solid #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ff99cc;
+    }
+    #welcomeScreen button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      background: #ff66aa;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    #welcomeScreen button:active {
+      transform: scale(0.95);
+    }
+
+    /* ==========================
+       Estilos generales para la Página Principal
+       ========================== */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffe6e6;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    /* Imagen de expresión facial debajo del mensaje */
+    #faceImg {
+      max-width: 200px;
+      margin-bottom: 20px;
+    }
+    /* Botones con diseño moderno y animación al pulsar */
+    .btn {
+      background: linear-gradient(145deg, #ff66aa, #ff99cc);
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn:active {
+      transform: scale(0.95);
+      box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    /* Contenedor del contenido inicial */
+    #initialContent {
+      z-index: 1;
+      text-align: center;
+    }
+    /* Tooltip para el botón "Sí" */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 10;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+    /* ==========================
+       Contenido Final: Felicitaciones
+       ========================== */
+    #finalContent {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+    #finalContent img {
+      max-width: 80%;
+      height: auto;
+      margin: 20px 0;
+    }
+    /* Botón secreto: se muestra justo debajo del mensaje especial,
+       con un área de detección reducida (sin hover en un contenedor amplio) */
+    .hiddenBtn {
+      opacity: 0;
+      transition: opacity 0.2s;
+      margin-top: 10px;
+      background: #660033;
+      padding: 8px 15px;
+      border-radius: 5px;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      display: inline-block;
+    }
+    /* Cuando el mouse esté justo sobre el botón, éste se hace visible */
+    .hiddenBtn:hover {
+      opacity: 1;
+    }
+
+    /* ==========================
+       Estilos para la Página Secreta
+       ========================== */
+    #secretPage, #secretFinalPage {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100vw;
+      min-height: 100vh;
+      background: #ffe6e6;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    /* Opciones organizadas en categorías */
+    #optionsContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+      width: 100%;
+    }
+    #optionsContainer .category {
+      background: #ffccff;
+      border: 2px solid #ff66aa;
+      border-radius: 10px;
+      padding: 10px;
+      min-width: 200px;
+    }
+    #optionsContainer .category h3 {
+      margin-top: 0;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    #optionsContainer label {
+      display: block;
+      cursor: pointer;
+      margin: 5px 0;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    /* Botón para confirmar opciones */
+    #confirmOptionsBtn {
+      background: linear-gradient(145deg, #ff66aa, #ff99cc);
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    #confirmOptionsBtn:active {
+      transform: scale(0.95);
+      box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    /* ==========================
+       Estilos para la Página Final Secreta
+       ========================== */
+    #secretFinalPage h1 {
+      margin-bottom: 10px;
+    }
+    #secretFinalPage #results {
+      text-align: left;
+      max-width: 600px;
+      margin: 20px 0;
+    }
+    #secretFinalPage ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    #secretFinalPage li {
+      margin-left: 20px;
+    }
+    #secretFinalPage img {
+      max-width: 80%;
+      height: auto;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ventana de Bienvenida -->
+  <div id="welcomeScreen">
+    <div class="welcomeContent">
+      <h1>Bienvenida cielito</h1>
+      <p>Prepárate para una experiencia retro y coquette que te mereces, iji iji iji</p>
+      <button id="startBtn">Comenzar</button>
+    </div>
+  </div>
+
+  <!-- Contenido inicial: Pregunta -->
+  <div id="initialContent">
+    <h1>¿Quieres ser mi novia para este San Valentín?</h1>
+    <!-- Imagen de expresión facial -->
+    <img id="faceImg" src="ren_tierno.png" alt="Expresión facial">
+    <div>
+      <!-- Botón "Sí" con tooltip -->
+      <button class="btn tooltip" id="yesBtn">
+        Sí
+        <span class="tooltiptext">
+          ¡Por favor, acepta!<br>
+          <img src="conejo.gif" alt="GIF preview" style="width:100%; max-width:150px;">
+        </span>
+      </button>
+      <!-- Botón "No" -->
+      <button class="btn" id="noBtn">No</button>
+    </div>
+  </div>
+
+  <!-- Contenido final: Felicitaciones -->
+  <div id="finalContent">
+    <img src="nana_ren.jpeg" alt="Imagen final" id="finalGif">
+    <h2>¡Te amo tanto mi Reina!</h2>
+    <p>
+      Mensaje especial: Has sido y seguirás siendo una persona importante en mi vida, mi amor.
+      Espero que este futuro que nos espera sea muy bonito, con la compañía del chele incluido.
+      ¡Te amo tanto!
+    </p>
+    <!-- Audio de felicitaciones -->
+    <audio id="audio" src="cancion.mp3"></audio>
+    <!-- Botón secreto (ahora en flujo normal, justo debajo del mensaje) -->
+    <button class="hiddenBtn" id="secretBtn">Cita Secreta</button>
+  </div>
+
+  <!-- Página Secreta: Elección de regalos/detalles -->
+  <div id="secretPage">
+    <h1>Bienvenido a la cita secreta</h1>
+    <p>Aquí podrás elegir qué cositas te gustarian para este 14 de febrero .</p>
+    <img src="bunny_twerk.gif" alt="GIF Secreto" style="max-width:300px; margin:10px 0;">
+    <!-- Opciones organizadas en categorías -->
+    <div id="optionsContainer">
+      <!-- Categoría: Lugares -->
+      <div class="category">
+        <h3>Lugares:</h3>
+        <label>
+          <input type="checkbox" value="Playa" data-category="Lugares">
+          Playa
+        </label>
+        <label>
+          <input type="checkbox" value="Carnaval Arica" data-category="Lugares">
+          Carnaval Arica
+        </label>
+        <label>
+          <input type="checkbox" value="Pub/Restaurant" data-category="Lugares">
+          Pub/Restaurant
+        </label>
+        <label>
+          <input type="checkbox" value="Quincho" data-category="Lugares">
+          Mall Plaza
+        </label>
+        <label>
+            <input type="checkbox" value="Quincho" data-category="Lugares">
+            Mall Chino
+        </label>
+      </div>
+      <!-- Categoría: Comida -->
+      <div class="category">
+        <h3>Comida:</h3>
+        <label>
+          <input type="checkbox" value="Sushi" data-category="Comida">
+          Sushi
+        </label>
+        <label>
+          <input type="checkbox" value="Comida China" data-category="Comida">
+          Comida China
+        </label>
+        <label>
+          <input type="checkbox" value="Handrolls" data-category="Comida">
+          Handrolls
+        </label>
+        <label>
+          <input type="checkbox" value="Picnic" data-category="Comida">
+          Picnic
+        </label>
+        <label>
+          <input type="checkbox" value="Pizza" data-category="Comida">
+          Pizza
+        </label>
+        <label>
+          <input type="checkbox" value="Doritos Takis" data-category="Comida">
+          Doritos Takis
+        </label>
+      </div>
+      <!-- Categoría: Bebestible -->
+      <div class="category">
+        <h3>Bebestible:</h3>
+        <label>
+          <input type="checkbox" value="Bebida" data-category="Bebestible">
+          Bebida
+        </label>
+        <label>
+          <input type="checkbox" value="Jugo" data-category="Bebestible">
+          Jugo
+        </label>
+        <label>
+          <input type="checkbox" value="Ramazotti" data-category="Bebestible">
+          Ramazotti
+        </label>
+        <label>
+          <input type="checkbox" value="Pisco sour" data-category="Bebestible">
+          Pisco sour
+        </label>
+        <label>
+          <input type="checkbox" value="Vino" data-category="Bebestible">
+          Vino
+        </label>
+      </div>
+      <!-- Categoría: Actividad -->
+      <div class="category">
+        <h3>Actividad:</h3>
+        <label>
+          <input type="checkbox" value="Dormir" data-category="Actividad">
+          Dormir
+        </label>
+        <label>
+          <input type="checkbox" value="Pasear por el atardecer" data-category="Actividad">
+          Pasear por el atardecer
+        </label>
+        <label>
+          <input type="checkbox" value="Cine (Pelicula de amor)" data-category="Actividad">
+          Cine (Película de amor)
+        </label>
+        <label>
+          <input type="checkbox" value="Paseo Baquedano" data-category="Actividad">
+          Paseo Baquedano
+        </label>
+        <label>
+          <input type="checkbox" value="Skin care" data-category="Actividad">
+          Skin care
+        </label>
+        <label>
+          <input type="checkbox" value="Piscina" data-category="Actividad">
+          Piscina
+        </label>
+      </div>
+    </div>
+    <!-- Botón para confirmar selecciones -->
+    <button id="confirmOptionsBtn">Confirmar Selecciones</button>
+  </div>
+
+  <!-- Página Final Secreta: Resultados y mensaje final -->
+  <div id="secretFinalPage">
+    <h1>Esta será tu cita para este 14 de febrero</h1>
+    <p>Te espero con ansias y muy bonita para la ocasión, mi amor.</p>
+    <p>Mandame un screenshot para tenerlo anotado bebe</p>
+    <!-- Contenedor donde se mostrarán las selecciones -->
+    <img src="twerk.gif" alt="Cita Final" style="max-width:80%; margin:20px 0;">
+    <div id="results"></div>
+    <!-- Audio de fondo para la cita secreta -->
+    <audio id="secretAudio" src="cancion_secreta.mp3"></audio>
+  </div>
+
+  <script>
+    // Variables globales para el botón "Sí" y las imágenes de preocupación
+    let yesScale = 1;
+    let worryIndex = 0;
+    const worryImages = ["ren_asustado.jpg", "ren_asustado2.jpg", "ren_asustado3.jpg"]; // Rutas de tus imágenes
+
+    // Manejar el botón de inicio en la Ventana de Bienvenida
+    document.getElementById("startBtn").addEventListener("click", function() {
+      document.getElementById("welcomeScreen").style.display = "none";
+    });
+
+    // Función para mover el botón "No" y realizar acciones (cambiar título, imagen y escalar el botón "Sí")
+    const noBtn = document.getElementById("noBtn");
+    noBtn.addEventListener("click", function() {
+      // Actualizar el título principal a "¿Como que no?"
+      document.querySelector("#initialContent h1").innerText = "¿Como que no?";
+
+      // Calcular posición aleatoria para el botón "No"
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const btnWidth = noBtn.offsetWidth;
+      const btnHeight = noBtn.offsetHeight;
+      const maxX = windowWidth - btnWidth;
+      const maxY = windowHeight - btnHeight;
+      const randomX = Math.floor(Math.random() * maxX);
+      const randomY = Math.floor(Math.random() * maxY);
+      noBtn.style.position = "absolute";
+      noBtn.style.left = randomX + "px";
+      noBtn.style.top = randomY + "px";
+
+      // Cambiar la imagen de expresión facial a una de preocupación/molestia
+      worryIndex++;
+      document.getElementById("faceImg").src = worryImages[worryIndex % worryImages.length];
+
+      // Incrementar la escala del botón "Sí"
+      yesScale += 0.1;
+      document.getElementById("yesBtn").style.transform = `scale(${yesScale})`;
+    });
+
+    // Al hacer clic en el botón "Sí" se muestra el contenido final de felicitaciones
+    document.getElementById("yesBtn").addEventListener("click", function() {
+      document.getElementById("initialContent").style.display = "none";
+      const finalContent = document.getElementById("finalContent");
+      finalContent.style.display = "flex";
+      const audio = document.getElementById("audio");
+      audio.play().catch(error => {
+        console.log("Error al reproducir el audio:", error);
+      });
+    });
+
+    // Botón secreto: al hacer clic, se muestra la Página Secreta
+    document.getElementById("secretBtn").addEventListener("click", function() {
+      document.getElementById("finalContent").style.display = "none";
+      document.getElementById("secretPage").style.display = "flex";
+    });
+
+    // Botón para confirmar opciones en la Página Secreta y mostrar el resumen en la Página Final Secreta
+    document.getElementById("confirmOptionsBtn").addEventListener("click", function() {
+      // Recoger todas las casillas seleccionadas
+      const checkedBoxes = document.querySelectorAll('#optionsContainer input[type="checkbox"]:checked');
+      const selections = {};
+      checkedBoxes.forEach(function(box) {
+        const cat = box.getAttribute('data-category');
+        if (!selections[cat]) selections[cat] = [];
+        selections[cat].push(box.value);
+      });
+      // Construir HTML para mostrar las selecciones
+      let resultsHTML = "";
+      for (const category in selections) {
+        resultsHTML += `<h3>${category}:</h3><ul>`;
+        selections[category].forEach(function(item) {
+          resultsHTML += `<li>${item}</li>`;
+        });
+        resultsHTML += "</ul>";
+      }
+      if (resultsHTML === "") {
+        resultsHTML = "<p>No seleccionaste ninguna opción.</p>";
+      }
+      document.getElementById("results").innerHTML = resultsHTML;
+
+      // Mostrar la Página Final Secreta y reproducir la música de fondo
+      document.getElementById("secretPage").style.display = "none";
+      document.getElementById("secretFinalPage").style.display = "flex";
+      const secretAudio = document.getElementById("secretAudio");
+      secretAudio.play().catch(error => {
+        console.log("Error al reproducir la música secreta:", error);
+      });
+    });
+  </script>
+</body>
+</html>
